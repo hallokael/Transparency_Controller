@@ -8,8 +8,9 @@ app_list=[]
 MAX=25
 trans=185
 old_hw=-3246234
+old_pos=(-100,-100,-100,-100)
 score=0
-wait=0.1
+wait=0.05
 name_list = {
     b'',
     b'Msg',
@@ -36,29 +37,48 @@ name_list = {
     b'Task Host Window',
     b'BluetoothNotificationAreaIconWindowClass',
     b'Cortana',
-    b'Start'
+    b'Start',
     # b'KAccountWnd_Kso_classname_qingSdk',
     # b'minisite expansion window',
     # b'Windows Defender',
     # b'AfterSome',
     # b'MagicianTray',
-    b'QQ'
+    b'QQ',
 }
 
 import threading
 def fun_timer():
     global old_hw
+    global old_pos
     global score
     hw=win32gui.GetForegroundWindow()
+    try:
+        new_pos = win32gui.GetWindowRect(hw)
+    except:
+        try:
+            app_list.remove(hw)
+            global timer
+            timer = threading.Timer(wait, fun_timer)
+            timer.start()
+            return
+        except:
+            global timer
+            timer = threading.Timer(wait, fun_timer)
+            timer.start()
+            return
+
+    print(old_pos)
+    print(new_pos)
     go=False
-    if hw==old_hw:
+    if hw==old_hw and old_pos==new_pos:
         score=score+1
-        if score>=10:
+        if score>=(1/wait):
             score=0
             go=True
     else:
         go=True
     old_hw=hw
+    old_pos=new_pos
     if not go :
         global timer
         timer = threading.Timer(wait, fun_timer)
@@ -140,12 +160,11 @@ def fun_timer():
         bound[1] = int(right / width * 15)
         bound[2] = int(top / height * 15)
         bound[3] = int(bottom / height * 15)
-
         for i in range(4):
-            if bound[i]>14:
-                bound[i]=14
-            if bound[i]<1:
-                bound[i]=1
+            if bound[i]>12:
+                bound[i]=12
+            if bound[i]<3:
+                bound[i]=3
         for i in range(bound[0],bound[1]):
             for j in range(bound[2],bound[3]):
                 if display_space[i][j]==0:
